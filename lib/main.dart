@@ -51,6 +51,7 @@ class _MyHomePageState extends State<MyHomePage> {
   // late final initialPosition = numberOfCubesInWidth * numberOfCubesInHeight + (numberOfCubesInWidth/2).round();
   late List<int> snakePosition = [0, 20, 40, 60, 80];
   late String direction = "down";
+  late String newDirection = "down";  
   late int food = randomFood(totalNumberOfCubes);
   late bool isPlaying = false;
   late bool isPaused;
@@ -98,13 +99,31 @@ class _MyHomePageState extends State<MyHomePage> {
     }
     snakePosition.removeAt(0);
   }
-
+  String oppositeDirection(direction) {
+    switch (direction) {
+      case 'up':
+        return 'down';
+      case 'down':
+        return 'up';
+      case 'left':
+        return 'right';
+      case 'right':
+        return 'left';
+      default:
+        return 'down';
+    }
+  }
   void updateSnake(round) {
     final tail = snakePosition[snakePosition.length - 1];
     // ignore: avoid_print
     // print(snakePosition);
     setState(() {
-      moveSnake(snakePosition, direction);
+      if(direction==oppositeDirection(newDirection)){
+        moveSnake(snakePosition, direction);
+      } else {
+        moveSnake(snakePosition, newDirection);
+        direction = newDirection;
+      }
     });
     if (snakePosition.contains(food)) {
       snakePosition.insert(0, tail);
@@ -134,24 +153,18 @@ class _MyHomePageState extends State<MyHomePage> {
       child: GestureDetector(
         onVerticalDragUpdate: (detail) {
           print({"vertical",detail.delta});
-          if (detail.delta.dy > 0 && direction != "down" && direction != "up") {
-            direction = 'down';
-          } else if (detail.delta.dy < 0 &&
-              direction != "down" &&
-              direction != "up") {
-            direction = 'up';
+          if (detail.delta.dy > 0) {
+            newDirection = 'down';
+          } else if (detail.delta.dy < 0) {
+            newDirection = 'up';
           }
         },
         onHorizontalDragUpdate: (detail) {
           print({"horizontal",detail.delta});
-          if (detail.delta.dx > 0 &&
-              direction != "right" &&
-              direction != "left") {
-            direction = 'right';
-          } else if (detail.delta.dx < 0 &&
-              direction != "right" &&
-              direction != "left") {
-            direction = 'left';
+          if (detail.delta.dx > 0) {
+            newDirection = 'right';
+          } else if (detail.delta.dx < 0) {
+            newDirection = 'left';
           }
           print(direction);
         },
